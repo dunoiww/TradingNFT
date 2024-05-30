@@ -75,7 +75,7 @@ contract FireMarketplace is IERC721Receiver,Ownable(msg.sender) {
         return myNft;
     }
 
-    function listNft(uint256 _tokenId, uint256 _price) public {
+    function listNft(uint256 _tokenId, uint256 _price) public  {
         require(nft.ownerOf(_tokenId) == msg.sender, "You are not the owner of this NFT");
         require(nft.getApproved(_tokenId) == address(this), "Marketplace is not approved to transfer this NFT");
 

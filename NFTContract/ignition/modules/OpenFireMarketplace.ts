@@ -1,7 +1,7 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 const NFTMarketplaceModule = buildModule("NFTMarketplaceModule", (m) => {
-  const marketplace = m.contract("FireMarketplace", ["0x118c1042bf28Cc7Ec70921f9687A71aB58dCD77b", "0x086f0ff14858901eFe9d5AA6FCa693dC2dE6Ee64"]);
+  const marketplace = m.contract("FireMarketplace", ["0xba116C19bc8f7BB26c17563457DE20C6101690d2", "0x9c8195e66cE0cB1A49D3Bcd92c8bB897cA9b8f9f"]);
 
   return { marketplace };
 });
