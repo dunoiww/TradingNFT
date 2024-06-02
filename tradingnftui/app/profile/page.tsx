@@ -13,6 +13,7 @@ import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from '@m
 import TransferModal from './component/TransferModal';
 import SuccessModal from '../component/SuccessModal';
 import ProcessingModal from '../component/ProcessingModal';
+import LoadingModal from '../component/LoadingModal';
 
 export default function Profile() {
     const { web3Provider, wallet } = useAppSelector((state) => state.account);
@@ -26,6 +27,7 @@ export default function Profile() {
     const [isList, setIsList] = React.useState<boolean>(false);
     const [isSuccess, setIsSuccess] = React.useState<boolean>(false);
     const [title, setTitle] = React.useState<string>('');
+    const [isProcessing, setIsProcessing] = React.useState<boolean>(false);
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
     const handleClose = () => {
@@ -38,16 +40,16 @@ export default function Profile() {
 
     const handleCloseTransfer = () => {
         setIsOpenTransfer(false);
-    }
+    };
 
     const handleCloseSuccess = () => {
         setIsSuccess(false);
-    }
+    };
 
     const handleCreateNFT = async (address: string) => {
         if (!wallet || !web3Provider) return;
         try {
-            setIsLoading(true);
+            setIsProcessing(true);
             handleClose();
             let tx = '';
             const nftContract = new NftContract(web3Provider);
@@ -56,7 +58,7 @@ export default function Profile() {
             setTxHash(tx);
             setTitle('Create NFT');
             setIsSuccess(true);
-            setIsLoading(false);
+            setIsProcessing(false);
             await getListNft();
         } catch (error) {
             console.log(error);
@@ -65,17 +67,23 @@ export default function Profile() {
 
     const getListNft = React.useCallback(async () => {
         if (!web3Provider || !wallet) return;
-        const nftContract = new NftContract(web3Provider);
-        const marketContract = new MarketContract(web3Provider);
-        if (defaultValue === 'unlist') {
-            const nfts = await nftContract.getListNFT(wallet.address);
-            setIsList(false);
-            setNfts(nfts);
-        } else {
-            const listedList = await marketContract.getNFTListedOnMarketplace();
-            const nftList = await nftContract.getNftInfo(listedList);
-            setIsList(true);
-            setNfts(nftList);
+        try {
+            setIsLoading(true)
+            const nftContract = new NftContract(web3Provider);
+            const marketContract = new MarketContract(web3Provider);
+            if (defaultValue === 'unlist') {
+                const nfts = await nftContract.getListNFT(wallet.address);
+                setIsList(false);
+                setNfts(nfts);
+            } else {
+                const listedList = await marketContract.getNFTListedOnMarketplace();
+                const nftList = await nftContract.getNftInfo(listedList);
+                setIsList(true);
+                setNfts(nftList.filter((nft) => nft.author === wallet.address));
+            }
+            setIsLoading(false);
+        } catch (error) {
+            console.log(error);
         }
     }, [web3Provider, wallet, defaultValue]);
 
@@ -96,7 +104,7 @@ export default function Profile() {
     const handleClickTransfer = async (nft: INftItem) => {
         setNft(nft);
         setIsOpenTransfer(true);
-    }
+    };
 
     const handleCloseListModal = () => {
         setIsOpenList(false);
@@ -106,7 +114,7 @@ export default function Profile() {
         if (!wallet || !web3Provider || !price || !nft) return;
 
         try {
-            setIsLoading(true);
+            setIsProcessing(true);
             handleCloseListModal();
             const nftContract = new NftContract(web3Provider);
             let tx = '';
@@ -118,7 +126,7 @@ export default function Profile() {
             setTxHash(tx);
             setIsSuccess(true);
             setTitle('List NFT');
-            setIsLoading(false);
+            setIsProcessing(false);
             await getListNft();
         } catch (error) {
             console.log(error);
@@ -128,7 +136,7 @@ export default function Profile() {
     const handleTransfer = async (toAddress: string) => {
         if (!web3Provider || !wallet) return;
         try {
-            setIsLoading(true);
+            setIsProcessing(true);
             handleCloseTransfer();
             const nftContract = new NftContract(web3Provider);
             await nftContract.approve(toAddress, nft.id);
@@ -136,12 +144,12 @@ export default function Profile() {
             setIsSuccess(true);
             setTxHash(tx);
             setTitle('Transfer NFT');
-            setIsLoading(false);
+            setIsProcessing(false);
             await getListNft();
         } catch (error) {
             console.log(error);
         }
-    }
+    };
 
     const handleChange = (event: SelectChangeEvent) => {
         setDefaultValue(event.target.value as string);
@@ -156,11 +164,11 @@ export default function Profile() {
                         background: 'linear-gradient(to right, #4e54c8, #8f94fb)',
                         color: 'black',
                         width: {
-                            xs: '40%',
-                            sm: '30%',
-                            md: '30%',
-                            lg: '25%',
-                            xl: '20%',
+                            xs: '30%',
+                            sm: '25%',
+                            md: '20%',
+                            lg: '20%',
+                            xl: '10%',
                         },
                         height: '40px',
                         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
@@ -179,8 +187,8 @@ export default function Profile() {
                     value={defaultValue}
                     onChange={handleChange}
                     label="Status">
-                    <MenuItem value="unlist">Your unlist NFT</MenuItem>
-                    <MenuItem value="list">Your list NFT</MenuItem>
+                    <MenuItem value="unlist">Unlist NFT</MenuItem>
+                    <MenuItem value="list">List NFT</MenuItem>
                 </Select>
 
                 <button
@@ -250,11 +258,23 @@ export default function Profile() {
                 handleTransfer={handleTransfer}
             />
 
-            <TransferModal nft={nft} isOpen={isOpenTransfer} handleCloseTransferModal={handleCloseTransfer} handleTransfer={handleTransfer}/>
+            <TransferModal
+                nft={nft}
+                isOpen={isOpenTransfer}
+                handleCloseTransferModal={handleCloseTransfer}
+                handleTransfer={handleTransfer}
+            />
 
-            <SuccessModal isOpenSuccess={isSuccess} title={title} hash={txHash} handleCloseListModal={handleCloseSuccess}/>
+            <SuccessModal
+                isOpenSuccess={isSuccess}
+                title={title}
+                hash={txHash}
+                handleCloseListModal={handleCloseSuccess}
+            />
 
-            <ProcessingModal isLoading={isLoading}/>
+            <ProcessingModal isProcessing={isProcessing} />
+
+            <LoadingModal isLoading={isLoading} />
         </div>
     );
 }

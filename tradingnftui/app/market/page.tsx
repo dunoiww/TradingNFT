@@ -8,22 +8,32 @@ import NftItem from './component/NftItem';
 import UsdtContract from '../contracts/UsdtContract';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import SuccessModal from '../component/SuccessModal';
+import ProcessingModal from '../component/ProcessingModal';
+import LoadingModal from '../component/LoadingModal';
 
 export default function Market() {
     const { web3Provider, wallet } = useAppSelector((state) => state.account);
     const [nfts, setNfts] = React.useState<INftItem[]>([]);
     const [nft, setNft] = React.useState<INftItem>({} as INftItem);
     const [nftListed, setNftListed] = React.useState<INftItem[]>([]);
-    const [txHast, setTxHast] = React.useState<string>();
-
+    const [txHash, setTxHash] = React.useState<string>();
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [isSuccess, setIsSuccess] = React.useState(false);
     const [isProcessing, setIsProcessing] = React.useState(false);
 
     const getListNft = React.useCallback(async () => {
-        const nftContract = new NftContract(web3Provider);
-        const marketContract = new MarketContract(web3Provider);
-        const ids = await marketContract.getNFTListedOnMarketplace();
-        const listedNfts = await nftContract.getNftInfo(ids);
-        setNftListed(listedNfts);
+        try {
+            setIsLoading(true);
+            const nftContract = new NftContract(web3Provider);
+            const marketContract = new MarketContract(web3Provider);
+            const ids = await marketContract.getNFTListedOnMarketplace();
+            const listedNfts = await nftContract.getNftInfo(ids);
+            setNftListed(listedNfts.filter((nft) => nft.author !== wallet?.address));
+            setIsLoading(false);
+        } catch (error) {
+            console.log(error);
+        }
     }, []);
 
     React.useEffect(() => {
@@ -46,34 +56,21 @@ export default function Market() {
                 return;
             }
             try {
+                setIsProcessing(true);
                 const marketContract = new MarketContract(web3Provider);
                 const usdtContract = new UsdtContract(web3Provider);
                 await usdtContract.approve(marketContract._contractAddress, nft.price);
                 const tx = await marketContract.buyNft(nft.id, nft.price);
-                setTxHast(tx);
+                setTxHash(tx);
+                setIsSuccess(true);
+                setIsProcessing(false);
+                await getListNft();
             } catch (error) {
                 console.log(error);
             }
         },
-        [web3Provider]
+        [web3Provider, getListNft]
     );
-
-    const handleTransfer = async (toAddress: string) => {
-        setIsProcessing(true);
-        try {
-            if (!nft || !web3Provider || !wallet) return;
-
-            const nftContract = new NftContract(web3Provider);
-            await nftContract.approve(toAddress, nft.id);
-
-            const tx = await nftContract.safeTransferFrom(wallet.address, toAddress, nft.id);
-            setTxHast(tx);
-        } catch (err) {
-            console.log(err);
-        }
-
-        setIsProcessing(false);
-    };
 
     return (
         <div className="container mx-auto">
@@ -89,8 +86,15 @@ export default function Market() {
                         );
                     })
                 }
-                <ToastContainer />
             </div>
+
+            <SuccessModal isOpenSuccess={isSuccess} title="Buy NFT" hash={txHash || ''} handleCloseListModal={() => setIsSuccess(false)} />
+
+            <ProcessingModal isProcessing={isProcessing} />
+
+            <LoadingModal isLoading={isLoading} />
+
+            <ToastContainer />
         </div>
     );
 }
