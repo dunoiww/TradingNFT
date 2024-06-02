@@ -4,7 +4,7 @@ export const numberFormat = (number: number | string) =>
 export const showSortAddress = (address?: string): string => {
     return `${address?.substring(0, 4)}...${address?.substring(
         address.length - 4,
-        address.length - 1
+        address.length - 0
     )}`;
 };
 
