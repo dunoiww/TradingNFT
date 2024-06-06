@@ -34,7 +34,7 @@ export default function Market() {
         } catch (error) {
             console.log(error);
         }
-    }, []);
+    }, [web3Provider, wallet]);
 
     React.useEffect(() => {
         getListNft();
@@ -66,6 +66,17 @@ export default function Market() {
                 setIsProcessing(false);
                 await getListNft();
             } catch (error) {
+                setIsProcessing(false);
+                toast.error('User rejected transaction', {
+                    position: 'top-right',
+                    theme: 'light',
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
                 console.log(error);
             }
         },

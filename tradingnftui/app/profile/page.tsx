@@ -14,6 +14,8 @@ import TransferModal from './component/TransferModal';
 import SuccessModal from '../component/SuccessModal';
 import ProcessingModal from '../component/ProcessingModal';
 import LoadingModal from '../component/LoadingModal';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Profile() {
     const { web3Provider, wallet } = useAppSelector((state) => state.account);
@@ -47,7 +49,20 @@ export default function Profile() {
     };
 
     const handleCreateNFT = async (address: string) => {
-        if (!wallet || !web3Provider) return;
+        if (!wallet || !web3Provider) {
+            toast.error('Please connect your wallet', {
+                position: 'top-right',
+                theme: 'light',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+            handleClose()
+            return
+        }
         try {
             setIsProcessing(true);
             handleClose();
@@ -61,6 +76,17 @@ export default function Profile() {
             setIsProcessing(false);
             await getListNft();
         } catch (error) {
+            setIsProcessing(false);
+            toast.error('User rejected transaction', {
+                position: 'top-right',
+                theme: 'light',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
             console.log(error);
         }
     };
@@ -129,6 +155,17 @@ export default function Profile() {
             setIsProcessing(false);
             await getListNft();
         } catch (error) {
+            setIsProcessing(false);
+            toast.error('User rejected transaction', {
+                position: 'top-right',
+                theme: 'light',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
             console.log(error);
         }
     };
@@ -147,6 +184,17 @@ export default function Profile() {
             setIsProcessing(false);
             await getListNft();
         } catch (error) {
+            setIsProcessing(false)
+            toast.error('User rejected transaction', {
+                position: 'top-right',
+                theme: 'light',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
             console.log(error);
         }
     };
@@ -275,6 +323,8 @@ export default function Profile() {
             <ProcessingModal isProcessing={isProcessing} />
 
             <LoadingModal isLoading={isLoading} />
+
+            <ToastContainer />
         </div>
     );
 }
