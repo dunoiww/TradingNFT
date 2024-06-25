@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import NftItem from './component/NftItem';
 import Add from '@mui/icons-material/Add';
 import Button from '@mui/material/Button';
@@ -16,6 +16,7 @@ import ProcessingModal from '../component/ProcessingModal';
 import LoadingModal from '../component/LoadingModal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Image from 'next/image';
 
 export default function Profile() {
     const { web3Provider, wallet } = useAppSelector((state) => state.account);
@@ -31,22 +32,14 @@ export default function Profile() {
     const [title, setTitle] = React.useState<string>('');
     const [isProcessing, setIsProcessing] = React.useState<boolean>(false);
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [isMinter, setIsMinter] = React.useState<boolean>(false);
+    const [isAdmin, setIsAdmin] = React.useState<boolean>(false);
 
-    const handleClose = () => {
-        setIsOpen(false);
-    };
-
-    const handleOpen = () => {
-        setIsOpen(true);
-    };
-
-    const handleCloseTransfer = () => {
-        setIsOpenTransfer(false);
-    };
-
-    const handleCloseSuccess = () => {
-        setIsSuccess(false);
-    };
+    const handleClose = useCallback(() => setIsOpen(false), []);
+    const handleOpen = useCallback(() => setIsOpen(true), []);
+    const handleCloseTransfer = useCallback(() => setIsOpenTransfer(false), []);
+    const handleCloseSuccess = useCallback(() => setIsSuccess(false), []);
+    const handleCloseListModal = useCallback(() => setIsOpenList(false), []);
 
     const handleCreateNFT = async (address: string) => {
         if (!wallet || !web3Provider) {
@@ -60,8 +53,8 @@ export default function Profile() {
                 draggable: true,
                 progress: undefined,
             });
-            handleClose()
-            return
+            handleClose();
+            return;
         }
         try {
             setIsProcessing(true);
@@ -94,7 +87,7 @@ export default function Profile() {
     const getListNft = React.useCallback(async () => {
         if (!web3Provider || !wallet) return;
         try {
-            setIsLoading(true)
+            setIsLoading(true);
             const nftContract = new NftContract(web3Provider);
             const marketContract = new MarketContract(web3Provider);
             if (defaultValue === 'unlist') {
@@ -130,10 +123,6 @@ export default function Profile() {
     const handleClickTransfer = async (nft: INftItem) => {
         setNft(nft);
         setIsOpenTransfer(true);
-    };
-
-    const handleCloseListModal = () => {
-        setIsOpenList(false);
     };
 
     const handleListNFT = async (price: number) => {
@@ -184,7 +173,7 @@ export default function Profile() {
             setIsProcessing(false);
             await getListNft();
         } catch (error) {
-            setIsProcessing(false)
+            setIsProcessing(false);
             toast.error('User rejected transaction', {
                 position: 'top-right',
                 theme: 'light',
@@ -202,6 +191,25 @@ export default function Profile() {
     const handleChange = (event: SelectChangeEvent) => {
         setDefaultValue(event.target.value as string);
     };
+
+    const handleIsMinter = async () => {
+        if (!web3Provider || !wallet) return;
+        const nftContract = new NftContract(web3Provider);
+        const rs = (await nftContract.isMinter(wallet.address)) || (await nftContract.isAdmin(wallet.address));
+        setIsMinter(rs);
+    };
+
+    const handleIsAdmin = async () => {
+        if (!web3Provider || !wallet) return;
+        const nftContract = new NftContract(web3Provider);
+        const rs = await nftContract.isAdmin(wallet.address);
+        setIsAdmin(rs);
+    };
+
+    React.useEffect(() => {
+        handleIsMinter();
+        handleIsAdmin();
+    });
 
     return (
         <div className="container mx-auto px-4">
@@ -222,13 +230,16 @@ export default function Profile() {
                         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                             borderColor: 'transparent',
                         },
-                        borderRadius: 2,
+                        borderTopLeftRadius: 12,
+                        borderTopRightRadius: 12,
+                        // borderRadius: 2,
                         fontSize: 18,
                     }}
                     MenuProps={{
                         PaperProps: {
                             sx: {
                                 background: 'linear-gradient(to right, #4e54c8, #8f94fb)', // Gradient for dropdown menu
+                                marginTop: 0.2,
                             },
                         },
                     }}
@@ -239,37 +250,62 @@ export default function Profile() {
                     <MenuItem value="list">List NFT</MenuItem>
                 </Select>
 
-                <button
-                    onClick={handleOpen}
-                    className="rounded-lg relative w-[180px] h-10 cursor-pointer flex items-center border border-blue-500 bg-blue-500 group hover:bg-blue-500 active:bg-blue-500 active:border-blue-500">
-                    <span className="text-gray-200 font-semibold ml-8 transform group-hover:translate-x-14 transition-all duration-300">
-                        Create NFT
-                    </span>
-                    <span className="absolute right-0 h-full w-10 rounded-lg bg-blue-500 flex items-center justify-center transform group-hover:translate-x-0 group-hover:w-full transition-all duration-300">
-                        <svg
-                            className="svg w-8 text-white"
-                            fill="none"
-                            height="24"
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                            width="24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <line
-                                x1="12"
-                                x2="12"
-                                y1="5"
-                                y2="19"></line>
-                            <line
-                                x1="5"
-                                x2="19"
-                                y1="12"
-                                y2="12"></line>
-                        </svg>
-                    </span>
-                </button>
+                {isMinter ? (
+                    <div className="flex flex-row space-x-2">
+                        <button
+                            onClick={handleOpen}
+                            className="rounded-lg relative w-[180px] h-10 cursor-pointer flex items-center border border-blue-500 bg-blue-500 group hover:bg-blue-500 active:bg-blue-500 active:border-blue-500">
+                            <span className="text-gray-200 font-semibold ml-8 transform group-hover:translate-x-14 transition-all duration-300">
+                                Create NFT
+                            </span>
+                            <span className="absolute right-0 h-full w-10 rounded-lg bg-blue-500 flex items-center justify-center transform group-hover:translate-x-0 group-hover:w-full transition-all duration-300">
+                                <svg
+                                    className="svg w-8 text-white"
+                                    fill="none"
+                                    height="24"
+                                    stroke="currentColor"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    viewBox="0 0 24 24"
+                                    width="24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <line
+                                        x1="12"
+                                        x2="12"
+                                        y1="5"
+                                        y2="19"></line>
+                                    <line
+                                        x1="5"
+                                        x2="19"
+                                        y1="12"
+                                        y2="12"></line>
+                                </svg>
+                            </span>
+                        </button>
+
+                        {isAdmin ? (
+                            <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => window.location.href = '/admin'}
+                            className='group rounded-lg flex items-center justify-center p-2'>
+                            <div className="relative">
+                                <Image
+                                    src={require("../icon_setting.png")}
+                                    width={24}
+                                    height={24}
+                                    alt="Settings Icon"
+                                    style={{
+                                        transition: 'transform 2s linear',
+                                    }}
+                                    className="group-hover:transform group-hover:rotate-[360deg]"
+                                />
+                            </div>
+                        </Button>
+                        ) : null}
+                    </div>
+                ) : null}
             </div>
 
             <div className="p-[2px] bg-gray-600"></div>
