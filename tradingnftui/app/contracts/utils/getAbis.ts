@@ -1,6 +1,6 @@
-import UsdtAbi from '../abis/Usdt.json'
-import NftAbi from '../abis/Nft.json'
-import MarketAbi from '../abis/Market.json';
+import UsdtAbi from '../abis/usdt.json'
+import NftAbi from '../abis/nft.json'
+import MarketAbi from '../abis/market.json';
 
 export const getUsdtAbi = () => UsdtAbi;
 export const getNftAbi = () => NftAbi;
