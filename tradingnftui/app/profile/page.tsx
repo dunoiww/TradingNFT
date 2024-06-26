@@ -17,6 +17,8 @@ import LoadingModal from '../component/LoadingModal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Image from 'next/image';
+import Link from 'next/link';
+import ShowToast from '../component/Toast';
 
 export default function Profile() {
     const { web3Provider, wallet } = useAppSelector((state) => state.account);
@@ -43,16 +45,7 @@ export default function Profile() {
 
     const handleCreateNFT = async (address: string) => {
         if (!wallet || !web3Provider) {
-            toast.error('Please connect your wallet', {
-                position: 'top-right',
-                theme: 'light',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
+            ShowToast('Please connect your wallet')
             handleClose();
             return;
         }
@@ -70,16 +63,7 @@ export default function Profile() {
             await getListNft();
         } catch (error) {
             setIsProcessing(false);
-            toast.error('User rejected transaction', {
-                position: 'top-right',
-                theme: 'light',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
+            ShowToast('User rejected the transaction');
             console.log(error);
         }
     };
@@ -145,16 +129,7 @@ export default function Profile() {
             await getListNft();
         } catch (error) {
             setIsProcessing(false);
-            toast.error('User rejected transaction', {
-                position: 'top-right',
-                theme: 'light',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
+            ShowToast('User rejected the transaction');
             console.log(error);
         }
     };
@@ -174,16 +149,7 @@ export default function Profile() {
             await getListNft();
         } catch (error) {
             setIsProcessing(false);
-            toast.error('User rejected transaction', {
-                position: 'top-right',
-                theme: 'light',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
+            ShowToast('User rejected the transaction');
             console.log(error);
         }
     };
@@ -285,24 +251,26 @@ export default function Profile() {
                         </button>
 
                         {isAdmin ? (
+                            <Link href="/setting">
+
                             <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => window.location.href = '/admin'}
-                            className='group rounded-lg flex items-center justify-center p-2'>
-                            <div className="relative">
-                                <Image
-                                    src={require("../icon_setting.png")}
-                                    width={24}
-                                    height={24}
-                                    alt="Settings Icon"
-                                    style={{
-                                        transition: 'transform 2s linear',
-                                    }}
-                                    className="group-hover:transform group-hover:rotate-[360deg]"
-                                />
-                            </div>
-                        </Button>
+                                variant="contained"
+                                color="primary"
+                                className="group rounded-lg flex items-center justify-center p-2 h-10">
+                                <div className="relative">
+                                    <Image
+                                        src={require('../icon_setting.png')}
+                                        width={24}
+                                        height={24}
+                                        alt="Settings Icon"
+                                        style={{
+                                            transition: 'transform 2s linear',
+                                        }}
+                                        className="group-hover:transform group-hover:rotate-[360deg]"
+                                    />
+                                </div>
+                            </Button>
+                            </Link>
                         ) : null}
                     </div>
                 ) : null}

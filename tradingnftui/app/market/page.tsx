@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import SuccessModal from '../component/SuccessModal';
 import ProcessingModal from '../component/ProcessingModal';
 import LoadingModal from '../component/LoadingModal';
+import ShowToast from '../component/Toast';
 
 export default function Market() {
     const { web3Provider, wallet } = useAppSelector((state) => state.account);
@@ -43,16 +44,7 @@ export default function Market() {
     const handleBuy = React.useCallback(
         async (nft: INftItem) => {
             if (!web3Provider || !nft.price) {
-                toast.error('Please connect your wallet', {
-                    position: 'top-right',
-                    theme: 'light',
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                });
+                ShowToast('Please connect your wallet')
                 return;
             }
             try {
@@ -67,16 +59,7 @@ export default function Market() {
                 await getListNft();
             } catch (error) {
                 setIsProcessing(false);
-                toast.error('User rejected transaction', {
-                    position: 'top-right',
-                    theme: 'light',
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                });
+                ShowToast('User rejected the transaction')
                 console.log(error);
             }
         },

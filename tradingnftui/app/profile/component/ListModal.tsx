@@ -53,7 +53,7 @@ export default function ListModal({ nft, isOpen, handleCloseListModal, handleLis
                             className="border border-gray-300 rounded p-2 w-full text-white pr-16"
                             style={{ backgroundColor: '#212121' }}
                         />
-                        <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">USDC</span>
+                        <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">USDT</span>
                     </div>
 
                     <div className="w-full">
