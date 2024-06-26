@@ -43,4 +43,14 @@ export default class MarketContract extends Erc721 {
         const tx = await this._contract.buyNft(tokenId, this._numberToEth(price), this._option);
         return this._handleTransactionResponse(tx);
     };
+
+    withdraw = async (amount: number) => {
+        const tx = await this._contract.withdrawToken(this._numberToEth(amount));
+        return this._handleTransactionResponse(tx);
+    }
+
+    setTax = async (tax: number) => {
+        const tx = await this._contract.setTax(tax);
+        return this._handleTransactionResponse(tx);
+    }
 }

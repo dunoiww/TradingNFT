@@ -54,10 +54,19 @@ export default class NftContract extends Erc721 {
     };
 
     isMinter = async (address: string) => {
-        return await this._contract.hasRole('0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6', address);
+        const MINTER_ROLE = await this._contract.MINTER_ROLE();
+        return await this._contract.hasRole(MINTER_ROLE, address);
     }
 
     isAdmin = async (address: string) => {
-        return await this._contract.hasRole('0x0000000000000000000000000000000000000000000000000000000000000000', address)
+        const ADMIN_ROLE = await this._contract.DEFAULT_ADMIN_ROLE();
+        return await this._contract.hasRole(ADMIN_ROLE, address)
+    }
+
+    grantRole = async (address: string, role: string) => {
+        let byte32Role = '';
+        byte32Role = role === 'MINTER' ? await this._contract.MINTER_ROLE() : await this._contract.DEFAULT_ADMIN_ROLE();
+        const tx = await this._contract.grantRole(byte32Role, address);
+        return this._handleTransactionResponse(tx);
     }
 }
