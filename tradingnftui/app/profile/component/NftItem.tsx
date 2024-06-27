@@ -10,9 +10,10 @@ interface IProps {
     isListed?: boolean;
     onClickList: (nft: INftItem) => void;
     onClickTransfer: (nft: INftItem) => void;
+    onClickDetail: () => void;
 }
 
-export default function NftItem({ nft, onClickList, isListed, onClickTransfer }: IProps) {
+export default function NftItem({ nft, onClickList, isListed, onClickTransfer, onClickDetail }: IProps) {
     const { web3Provider, wallet } = useAppSelector((state) => state.account);
     const [txHash, setTxHash] = React.useState<string>();
 
@@ -26,19 +27,29 @@ export default function NftItem({ nft, onClickList, isListed, onClickTransfer }:
                     borderRadius: 8,
                     marginTop: 15,
                 }}>
-                <img
-                    src={nft.image}
-                    style={{ objectFit: 'contain', borderRadius: 8 }}
-                    alt="NFT"
-                />
+                <button onClick={onClickDetail}>
+                    <img
+                        src={nft.image}
+                        style={{ objectFit: 'contain', borderRadius: 8 }}
+                        alt="NFT"
+                    />
 
-                <div className="absolute top-3 left-4">
-                    <p
-                        style={{ fontSize: 40 }}
-                        className="italic font-bold">
-                        {Clarity[(nft.attributes?.find((p) => p.trait_type === 'Rarity')?.value as any) || 0]}
-                    </p>
-                </div>
+                    <div className="absolute top-3 left-4">
+                        <p
+                            style={{ fontSize: 40 }}
+                            className="italic font-bold">
+                            {Clarity[(nft.attributes?.find((p) => p.trait_type === 'Rarity')?.value as any) || 0]}
+                        </p>
+                    </div>
+
+                    <div className="absolute top-3 right-4">
+                        <div
+                            className="p-1 px-3 rounded-lg"
+                            style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+                            <p>Id: {nft.id.toString().padStart(5, '0')}</p>
+                        </div>
+                    </div>
+                </button>
 
                 <div className="mt-2 space-y-2">
                     {nft.name ? (
@@ -65,14 +76,6 @@ export default function NftItem({ nft, onClickList, isListed, onClickTransfer }:
                             null
                         )
                     }
-                </div>
-
-                <div className="absolute top-3 right-4">
-                    <div
-                        className="p-1 px-3 rounded-lg"
-                        style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
-                        <p>Id: {nft.id.toString().padStart(5, '0')}</p>
-                    </div>
                 </div>
             </div>
         </div>

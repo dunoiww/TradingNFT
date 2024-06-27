@@ -19,6 +19,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Image from 'next/image';
 import Link from 'next/link';
 import ShowToast from '../component/Toast';
+import DetailModal from '../component/DetailModal';
 
 export default function Profile() {
     const { web3Provider, wallet } = useAppSelector((state) => state.account);
@@ -34,6 +35,7 @@ export default function Profile() {
     const [title, setTitle] = React.useState<string>('');
     const [isProcessing, setIsProcessing] = React.useState<boolean>(false);
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [isDetail, setIsDetail] = React.useState<boolean>(false);
     const [isMinter, setIsMinter] = React.useState<boolean>(false);
     const [isAdmin, setIsAdmin] = React.useState<boolean>(false);
 
@@ -42,6 +44,7 @@ export default function Profile() {
     const handleCloseTransfer = useCallback(() => setIsOpenTransfer(false), []);
     const handleCloseSuccess = useCallback(() => setIsSuccess(false), []);
     const handleCloseListModal = useCallback(() => setIsOpenList(false), []);
+    const handleCloseDetail = useCallback(() => setIsDetail(false), []);
 
     const handleCreateNFT = async (address: string) => {
         if (!wallet || !web3Provider) {
@@ -177,6 +180,11 @@ export default function Profile() {
         handleIsAdmin();
     });
 
+    const handleClickDetail = (nft: INftItem) => {
+        setNft(nft);
+        setIsDetail(true);
+    }
+
     return (
         <div className="container mx-auto px-4">
             <div className="flex flex-row items-center justify-between py-4">
@@ -186,8 +194,8 @@ export default function Profile() {
                         background: 'linear-gradient(to right, #4e54c8, #8f94fb)',
                         color: 'black',
                         width: {
-                            xs: '30%',
-                            sm: '25%',
+                            xs: '35%',
+                            sm: '30%',
                             md: '20%',
                             lg: '20%',
                             xl: '10%',
@@ -198,7 +206,6 @@ export default function Profile() {
                         },
                         borderTopLeftRadius: 12,
                         borderTopRightRadius: 12,
-                        // borderRadius: 2,
                         fontSize: 18,
                     }}
                     MenuProps={{
@@ -290,6 +297,7 @@ export default function Profile() {
                                     isListed={isList}
                                     onClickList={handleClickList}
                                     onClickTransfer={handleClickTransfer}
+                                    onClickDetail={() => handleClickDetail(nft)}
                                 />
                             );
                         })}
@@ -327,6 +335,8 @@ export default function Profile() {
             <ProcessingModal isProcessing={isProcessing} />
 
             <LoadingModal isLoading={isLoading} />
+
+            <DetailModal isOpen={isDetail} nft={nft} handleClose={handleCloseDetail} />
 
             <ToastContainer />
         </div>
