@@ -14,6 +14,10 @@ export default class UsdtContract extends Erc20 {
     }
 
     getBalance = async () => {
-        return this._contract.balanceOf(getMarketAddress());
+        return await this._contract.balanceOf(getMarketAddress());
+    }
+
+    getBalanceUser = async (address: string) => {
+        return await this._contract.balanceOf(address);
     }
 }

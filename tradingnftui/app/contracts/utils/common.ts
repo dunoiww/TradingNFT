@@ -1,13 +1,11 @@
-require('dotenv').config({ path: '../../../.env' });
-
-const { INFURA_KEY } = process.env;
+require('dotenv').config()
 
 export const getRPC = () => {
-    return `https://sepolia.infura.io/v3/3e55ba6c0e484b6ca3993d172041ac7d`
+    return `https://sepolia.infura.io/v3/${process.env.INFURA_KEY}`
 }
 
 export const SMC_ADDRESS = {
-    USDT: '0xba116C19bc8f7BB26c17563457DE20C6101690d2',
-    NFT: '0x9c8195e66cE0cB1A49D3Bcd92c8bB897cA9b8f9f',
-    MARKET: '0x308738C3EdCA063507CB9451c78D491ab08a4694'
+    USDT: process.env.USDT_ADDRESS,
+    NFT: process.env.NFT_ADDRESS,
+    MARKET: process.env.MARKET_ADDRESS
 }
