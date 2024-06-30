@@ -91,7 +91,7 @@ Mục tiêu của đề tài "Xây dựng website NFT" là thiết kế và phá
 * [Ngô Phương Nam](https://github.com/dunoiww) - 21522361
     * Vai trò: UI/UX designer, Frontend developer, Backend developer
 
-* [Phạm Nguyễn](https://github.com/dunoiww) - 21522394
+* [Phạm Nguyễn](https://github.com/kazei1211) - 21522394
     * Vai trò: Tester, UI/UX designer, Frontend developer
 
 <!-- NGƯỜI HƯỚNG DẪN -->
